@@ -1,6 +1,6 @@
 import React from "react";
-import { useController } from "react-hook-form";
 import styled from "styled-components";
+import { useController } from "react-hook-form";
 
 const InputStyles = styled.div`
   position: relative;
@@ -15,8 +15,8 @@ const InputStyles = styled.div`
     border: 1px solid transparent;
   }
   input:focus {
+    background-color: white;
     border-color: ${(props) => props.theme.primary};
-    background-color: transparent;
   }
   input::-webkit-input-placeholder {
     color: #84878b;
@@ -24,7 +24,6 @@ const InputStyles = styled.div`
   input::-moz-input-placeholder {
     color: #84878b;
   }
-
   .input-icon {
     position: absolute;
     right: 20px;
@@ -33,15 +32,7 @@ const InputStyles = styled.div`
     cursor: pointer;
   }
 `;
-
-const Input = ({
-  name = "",
-  type = "text",
-  children,
-  hasIcon = false,
-  control,
-  ...props
-}) => {
+const Input = ({ name = "", type = "text", children, control, ...props }) => {
   const { field } = useController({
     control,
     name,
@@ -49,7 +40,7 @@ const Input = ({
   });
   return (
     <InputStyles hasIcon={children ? true : false}>
-      <input type={type} id={name} {...field} {...props} />
+      <input id={name} type={type} {...field} {...props} />
       {children ? <div className="input-icon">{children}</div> : null}
     </InputStyles>
   );

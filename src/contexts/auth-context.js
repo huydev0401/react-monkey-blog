@@ -1,12 +1,10 @@
+import { auth } from "firebase-app/firebase-config";
 import { onAuthStateChanged } from "firebase/auth";
-import { useEffect } from "react";
-import { auth } from "../firebase-app/firebase-config";
 
-const { createContext, useContext, useState } = require("react");
+const { createContext, useContext, useState, useEffect } = require("react");
 
 const AuthContext = createContext();
-
-const AuthProvider = (props) => {
+function AuthProvider(props) {
   const [userInfo, setUserInfo] = useState({});
   const value = { userInfo, setUserInfo };
   useEffect(() => {
@@ -15,13 +13,11 @@ const AuthProvider = (props) => {
     });
   }, []);
   return <AuthContext.Provider value={value} {...props}></AuthContext.Provider>;
-};
-
-const useAuth = () => {
+}
+function useAuth() {
   const context = useContext(AuthContext);
   if (typeof context === "undefined")
-    throw new Error("AuthContext must be used within AuthProvider");
+    throw new Error("useAuth must be used within AuthProvider");
   return context;
-};
-
+}
 export { AuthProvider, useAuth };

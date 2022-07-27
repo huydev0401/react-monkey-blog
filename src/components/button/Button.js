@@ -1,20 +1,20 @@
+import { LoadingSpinner } from "components/loading";
 import React from "react";
 import styled, { css } from "styled-components";
-import LoadingSpinner from "../loading/LoadingSpinner";
 import PropTypes from "prop-types";
 import { NavLink } from "react-router-dom";
 
 const ButtonStyles = styled.button`
-  padding: 0 25px;
   cursor: pointer;
+  padding: 0 25px;
   line-height: 1;
-  height: ${(props) => props.height || "66px"};
   border-radius: 8px;
   font-weight: 600;
   font-size: 18px;
+  height: ${(props) => props.height || "66px"};
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   ${(props) =>
     props.kind === "secondary" &&
     css`
@@ -36,19 +36,23 @@ const ButtonStyles = styled.button`
     pointer-events: none;
   }
 `;
-
+/**
+ * @param {*} onClick Handler onClick
+ * @requires
+ * @param {string} type Type of button 'button' | 'submit'
+ */
 const Button = ({
-  children,
   type = "button",
-  kind = "primary",
   onClick = () => {},
+  children,
+  kind = "primary",
   ...props
 }) => {
   const { isLoading, to } = props;
-  const child = !!isLoading ? <LoadingSpinner /> : children;
+  const child = !!isLoading ? <LoadingSpinner></LoadingSpinner> : children;
   if (to !== "" && typeof to === "string") {
     return (
-      <NavLink to={to}>
+      <NavLink to={to} className="inline-block">
         <ButtonStyles type={type} kind={kind} {...props}>
           {child}
         </ButtonStyles>
@@ -61,15 +65,6 @@ const Button = ({
     </ButtonStyles>
   );
 };
-
-/**
- * @param {boolean} isLoading Loading status
- * @param {*} onClick Handler onClick
- * @param {string} kind Kind of button 'primary' | 'secondary'
- * @requires
- * @param {string} type Type of button 'button' | 'submit'
- * @returns
- */
 
 Button.propTypes = {
   type: PropTypes.oneOf(["button", "submit"]),
