@@ -1,6 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 import Button from "../button/Button";
+import { NavLink } from "react-router-dom";
+import { useAuth } from "../../contexts/auth-context";
 
 const menuLinks = [
   {
@@ -33,21 +35,26 @@ const HeaderStyles = styled.header`
     gap: 20px;
     margin-left: 40px;
     list-style: none;
+    &-link {
+      font-weight: 500;
+    }
   }
   .search {
     width: 100%;
     max-width: 320px;
     padding: 15px 25px;
-    border: 1px solid #eee;
+    border: 1px solid #ccc;
     border-radius: 8px;
     margin-left: auto;
     position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
+    margin-right: 20px;
     &-input {
       flex: 1;
       margin-right: 30px;
+      font-weight: 500;
     }
     &-icon {
       cursor: pointer;
@@ -58,25 +65,28 @@ const HeaderStyles = styled.header`
       flex-shrink: 0;
     }
   }
-  .header-button {
-    margin-left: 20px;
-  }
 `;
 
 const Header = () => {
+  const { userInfo } = useAuth();
+  const getLastName = (name) => {
+    if (!name) name = "User";
+    const length = name.split(" ").length;
+    return name.split(" ")[length - 1];
+  };
   return (
     <HeaderStyles>
       <div className="container">
         <div className="header-main">
-          <a href="/">
-            <img src="/logo.png" alt="monkey blogging" className="logo" />
-          </a>
+          <NavLink to={"/"}>
+            <img srcSet="/logo.png 2x" alt="monkey blogging" className="logo" />
+          </NavLink>
           <ul className="menu">
             {menuLinks.map((item) => (
               <li className="menu-item" key={item.title}>
-                <a href={item.url} className="menu-link">
+                <NavLink to={item.url} className="menu-link">
                   {item.title}
-                </a>
+                </NavLink>
               </li>
             ))}
           </ul>
@@ -117,13 +127,24 @@ const Header = () => {
               </svg>
             </span>
           </div>
-          <Button
-            type="button"
-            style={{ maxWidth: "200px" }}
-            className="header-button"
-          >
-            Sign In
-          </Button>
+          {userInfo ? (
+            <div className="header-auth">
+              <span>Welcome back!, </span>
+              <strong className="text-primary">
+                {getLastName(userInfo?.displayName)}
+              </strong>
+            </div>
+          ) : (
+            <Button
+              type="button"
+              style={{ maxWidth: "200px" }}
+              className="header-button"
+              height="56px"
+              to="/sign-up"
+            >
+              Sign Up
+            </Button>
+          )}
         </div>
       </div>
     </HeaderStyles>
