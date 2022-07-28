@@ -2,12 +2,12 @@ import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 const firebaseConfig = {
-  apiKey: "AIzaSyC9DKQlp5IwjAKJZPjHu-p-XZId61MEl9Q",
-  authDomain: "monkey-blogging.firebaseapp.com",
-  projectId: "monkey-blogging",
-  storageBucket: "monkey-blogging.appspot.com",
-  messagingSenderId: "483024495358",
-  appId: "1:483024495358:web:483098406a1e3d6816fbaf",
+  apiKey: "AIzaSyCXm1vQtFkjIv1sewyFg6o0NYH7jSD6bDM",
+  authDomain: "monkey-blog-3b18a.firebaseapp.com",
+  projectId: "monkey-blog-3b18a",
+  storageBucket: "monkey-blog-3b18a.appspot.com",
+  messagingSenderId: "519721452929",
+  appId: "1:519721452929:web:de3fc610906a7d3e071480",
 };
 
 const app = initializeApp(firebaseConfig);
