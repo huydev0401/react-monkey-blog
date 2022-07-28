@@ -12,30 +12,103 @@ import { postStatus } from "utils/constants";
 import ImageUpload from "components/image/ImageUpload";
 import useFirebaseImage from "hooks/useFirebaseImage";
 import Toggle from "components/toggle/Toggle";
+import { useEffect } from "react";
+import {
+  addDoc,
+  collection,
+  getDocs,
+  query,
+  serverTimestamp,
+  where,
+} from "firebase/firestore";
+import { db } from "firebase-app/firebase-config";
+import { useState } from "react";
+import { useAuth } from "contexts/auth-context";
+import { toast } from "react-toastify";
 const PostAddNewStyles = styled.div``;
 
 const PostAddNew = () => {
-  const { control, watch, handleSubmit, setValue, getValues } = useForm({
+  const { userInfo } = useAuth();
+  const {
+    control,
+    watch,
+    handleSubmit,
+    setValue,
+    getValues,
+    reset,
+    formState: { isSubmitting },
+  } = useForm({
     mode: "onChange",
     defaultValues: {
       title: "",
       slug: "",
       status: 2,
       hot: false,
-      category: "",
+      categoryId: "",
+      image: "",
     },
   });
-  const { image, progress, handleSelectImage, handleDeleteImage } =
-    useFirebaseImage(setValue, getValues);
+  const {
+    image,
+    progress,
+    handleSelectImage,
+    handleDeleteImage,
+    handleResetUpload,
+  } = useFirebaseImage(setValue, getValues);
   const watchStatus = watch("status");
   const watchHot = watch("hot");
-  // const watchCategory = watch("category");
-  const addPostHandler = (values) => {
-    const cloneValues = { ...values };
-    cloneValues.slug = slugify(values.slug || values.title);
-    cloneValues.status = Number(values.status);
-    console.log(cloneValues);
+  const [categories, setCategories] = useState([]);
+  const [selectCategory, setSelectCategory] = useState({});
+  const addPostHandler = async (values) => {
+    try {
+      const cloneValues = { ...values };
+      cloneValues.slug = slugify(values.slug || values.title, { lower: true });
+      cloneValues.status = Number(values.status);
+      const colRef = collection(db, "posts");
+      await addDoc(colRef, {
+        ...cloneValues,
+        image,
+        userId: userInfo.uid,
+        createdAt: serverTimestamp(),
+      });
+      toast.success("Create new post successfully!");
+      reset({
+        title: "",
+        slug: "",
+        status: 2,
+        hot: false,
+        categoryId: "",
+        image: "",
+      });
+      setSelectCategory(null);
+      handleResetUpload();
+    } catch (error) {
+      console.log(error);
+    }
   };
+  useEffect(() => {
+    async function getData() {
+      const colRef = collection(db, "categories");
+      const q = query(colRef, where("status", "==", 1));
+      const querySnapshot = await getDocs(q);
+      let result = [];
+      querySnapshot.forEach((doc) => {
+        result.push({
+          id: doc.id,
+          ...doc.data(),
+        });
+      });
+      setCategories(result);
+    }
+    getData();
+  }, []);
+  const handleSelectOption = (item) => {
+    setValue("categoryId", item.id);
+    setSelectCategory(item);
+  };
+  useEffect(() => {
+    document.title = "Monkey Blogging - Add new post";
+  }, []);
   return (
     <PostAddNewStyles>
       <h1 className="dashboard-heading">Add new post</h1>
@@ -71,6 +144,37 @@ const PostAddNew = () => {
             ></ImageUpload>
           </Field>
           <Field>
+            <Label>Category</Label>
+            <Dropdown>
+              <Dropdown.Select placeholder="Select the categories"></Dropdown.Select>
+              <Dropdown.List>
+                {categories.length > 0 &&
+                  categories.map((item) => (
+                    <Dropdown.Option
+                      key={item.id}
+                      onClick={() => handleSelectOption(item)}
+                    >
+                      {item.name}
+                    </Dropdown.Option>
+                  ))}
+              </Dropdown.List>
+            </Dropdown>
+            {selectCategory?.name && (
+              <div className="inline-block p-2 bg-green-50 text-green-600 rounded-md font-medium">
+                {selectCategory.name}
+              </div>
+            )}
+          </Field>
+        </div>
+        <div className="grid grid-cols-2 gap-x-10 mb-10">
+          <Field>
+            <Label>Feature post</Label>
+            <Toggle
+              on={watchHot === true}
+              onClick={() => setValue("hot", !watchHot)}
+            ></Toggle>
+          </Field>
+          <Field>
             <Label>Status</Label>
             <div className="flex items-center gap-x-5">
               <Radio
@@ -100,26 +204,12 @@ const PostAddNew = () => {
             </div>
           </Field>
         </div>
-        <div className="grid grid-cols-2 gap-x-10 mb-10">
-          <Field>
-            <Label>Feature post</Label>
-            <Toggle
-              on={watchHot === true}
-              onClick={() => setValue("hot", !watchHot)}
-            ></Toggle>
-          </Field>
-          <Field>
-            <Label>Category</Label>
-            <Dropdown>
-              <Dropdown.Option>Knowledge</Dropdown.Option>
-              <Dropdown.Option>Blockchain</Dropdown.Option>
-              <Dropdown.Option>Setup</Dropdown.Option>
-              <Dropdown.Option>Nature</Dropdown.Option>
-              <Dropdown.Option>Developer</Dropdown.Option>
-            </Dropdown>
-          </Field>
-        </div>
-        <Button type="submit" className="mx-auto">
+        <Button
+          isLoading={isSubmitting}
+          disabled={isSubmitting}
+          type="submit"
+          className={`mx-auto ${isSubmitting ? "w-[180px]" : ""}`}
+        >
           Add new post
         </Button>
       </form>
