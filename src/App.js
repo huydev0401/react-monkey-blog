@@ -4,6 +4,9 @@ import CategoryUpdate from "module/category/CategoryUpdate";
 import DashboardLayout from "module/dashboard/DashboardLayout";
 import PostAddNew from "module/post/PostAddNew";
 import PostManage from "module/post/PostManage";
+import UserManage from "module/user/UserManage";
+import UserAddNew from "module/user/UserAddNew";
+import UserProfile from "module/user/UserProfile";
 import DashboardPage from "pages/DashboardPage";
 import HomePage from "pages/HomePage";
 import NotFoundPage from "pages/NotFoundPage";
@@ -12,6 +15,7 @@ import SignInPage from "pages/SignInPage";
 import { Route, Routes } from "react-router-dom";
 import { AuthProvider } from "./contexts/auth-context";
 import SignUpPage from "./pages/SignUpPage";
+import UserUpdate from "module/user/UserUpdate";
 
 function App() {
   return (
@@ -52,7 +56,7 @@ function App() {
               path="/manage/update-category"
               element={<CategoryUpdate></CategoryUpdate>}
             ></Route>
-            {/* <Route
+            <Route
               path="/manage/user"
               element={<UserManage></UserManage>}
             ></Route>
@@ -61,9 +65,13 @@ function App() {
               element={<UserAddNew></UserAddNew>}
             ></Route>
             <Route
+              path="/manage/update-user"
+              element={<UserUpdate></UserUpdate>}
+            ></Route>
+            <Route
               path="/profile"
               element={<UserProfile></UserProfile>}
-            ></Route> */}
+            ></Route>
           </Route>
         </Routes>
       </AuthProvider>

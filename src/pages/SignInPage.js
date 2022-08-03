@@ -21,7 +21,7 @@ const schema = yup.object({
     .required("Please enter your email address"),
   password: yup
     .string()
-    .min(8, "Your password must be at least 8 characters or greater")
+    .min(6, "Your password must be at least 6 characters or greater")
     .required("Please enter your password"),
 });
 const SignInPage = () => {

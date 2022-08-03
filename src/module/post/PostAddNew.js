@@ -16,6 +16,8 @@ import { useEffect } from "react";
 import {
   addDoc,
   collection,
+  doc,
+  getDoc,
   getDocs,
   query,
   serverTimestamp,
@@ -36,7 +38,7 @@ const PostAddNew = () => {
     setValue,
     getValues,
     reset,
-    formState: { isSubmitting },
+    formState: { isSubmitting, isValid },
   } = useForm({
     mode: "onChange",
     defaultValues: {
@@ -44,7 +46,8 @@ const PostAddNew = () => {
       slug: "",
       status: 2,
       hot: false,
-      categoryId: "",
+      category: {},
+      user: {},
       image: "",
     },
   });
@@ -60,15 +63,20 @@ const PostAddNew = () => {
   const [categories, setCategories] = useState([]);
   const [selectCategory, setSelectCategory] = useState({});
   const addPostHandler = async (values) => {
+    if (!isValid) return;
     try {
       const cloneValues = { ...values };
-      cloneValues.slug = slugify(values.slug || values.title, { lower: true });
+      cloneValues.slug = slugify(values.slug || values.title, {
+        lower: true,
+        replacement: " ",
+        trim: true,
+      });
       cloneValues.status = Number(values.status);
+      console.log(cloneValues);
       const colRef = collection(db, "posts");
       await addDoc(colRef, {
         ...cloneValues,
         image,
-        userId: userInfo.uid,
         createdAt: serverTimestamp(),
       });
       toast.success("Create new post successfully!");
@@ -77,7 +85,7 @@ const PostAddNew = () => {
         slug: "",
         status: 2,
         hot: false,
-        categoryId: "",
+        category: {},
         image: "",
       });
       setSelectCategory(null);
@@ -102,8 +110,31 @@ const PostAddNew = () => {
     }
     getData();
   }, []);
-  const handleSelectOption = (item) => {
-    setValue("categoryId", item.id);
+  useEffect(() => {
+    async function fetchUserData() {
+      if (!userInfo.email) return;
+      const q = query(
+        collection(db, "users"),
+        where("email", "==", userInfo.email)
+      );
+      const querySnapshot = await getDocs(q);
+      querySnapshot.forEach((doc) =>
+        setValue("user", {
+          id: doc.id,
+          ...doc.data(),
+        })
+      );
+    }
+    fetchUserData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userInfo.email]);
+  const handleSelectOption = async (item) => {
+    const colRef = doc(db, "categories", item.id);
+    const docData = await getDoc(colRef);
+    setValue("category", {
+      id: docData.id,
+      ...docData.data(),
+    });
     setSelectCategory(item);
   };
   useEffect(() => {
