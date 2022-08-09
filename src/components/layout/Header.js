@@ -81,7 +81,7 @@ const Header = () => {
   return (
     <HeaderStyles>
       <div className="container">
-        <div className="header-main">
+        <div className="header-main flex items-center justify-between">
           <NavLink to="/">
             <img srcSet="/logo.png 2x" alt="monkey-blogging" className="logo" />
           </NavLink>
@@ -94,7 +94,7 @@ const Header = () => {
               </li>
             ))}
           </ul>
-          <div className="search">
+          {/* <div className="search">
             <input
               type="text"
               className="search-input"
@@ -130,7 +130,7 @@ const Header = () => {
                 />
               </svg>
             </span>
-          </div>
+          </div> */}
           {!userInfo ? (
             <Button
               type="button"
@@ -146,6 +146,9 @@ const Header = () => {
               <strong className="text-primary">
                 {getLastName(userInfo?.displayName)}
               </strong>
+              <Button className="ml-3" to="/dashboard">
+                Dashboard
+              </Button>
             </div>
           )}
         </div>

@@ -34,9 +34,9 @@ const SignInPage = () => {
     resolver: yupResolver(schema),
   });
   useEffect(() => {
-    const arrErroes = Object.values(errors);
-    if (arrErroes.length > 0) {
-      toast.error(arrErroes[0]?.message, {
+    const arrError = Object.values(errors);
+    if (arrError.length > 0) {
+      toast.error(arrError[0]?.message, {
         pauseOnHover: false,
         delay: 0,
       });

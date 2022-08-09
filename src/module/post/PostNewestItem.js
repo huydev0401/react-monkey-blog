@@ -1,4 +1,5 @@
 import React from "react";
+import slugify from "slugify";
 import styled from "styled-components";
 import PostCategory from "./PostCategory";
 import PostImage from "./PostImage";
@@ -46,21 +47,24 @@ const PostNewestItemStyles = styled.div`
     }
   }
 `;
-const PostNewestItem = () => {
+const PostNewestItem = ({ data }) => {
+  if (!data) return null;
+  const date = new Date(data?.createdAt?.seconds * 1000);
+  const formatDate = new Date(date).toLocaleDateString("vi-Vi");
   return (
     <PostNewestItemStyles>
-      <PostImage
-        url="https://images.unsplash.com/photo-1510519138101-570d1dca3d66?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2294&q=80"
-        alt=""
-        to="/"
-      ></PostImage>
+      <PostImage url={data.image} alt="" to="/"></PostImage>
 
       <div className="post-content">
-        <PostCategory type="secondary">Kiến thức</PostCategory>
-        <PostTitle>
-          Hướng dẫn setup phòng cực chill dành cho người mới toàn tập
-        </PostTitle>
-        <PostMeta></PostMeta>
+        <PostCategory to={data.category?.slug} type="secondary">
+          {data.category?.name}
+        </PostCategory>
+        <PostTitle to={data.slug}>{data.title}</PostTitle>
+        <PostMeta
+          date={formatDate}
+          to={slugify(data.user?.username || "", { lower: true })}
+          authorName={data.user?.fullname}
+        ></PostMeta>
       </div>
     </PostNewestItemStyles>
   );

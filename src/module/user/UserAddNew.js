@@ -4,12 +4,14 @@ import { Field, FieldCheckboxes } from "components/field";
 import ImageUpload from "components/image/ImageUpload";
 import { Input } from "components/input";
 import { Label } from "components/label";
+import { Textarea } from "components/textarea";
 import { auth, db } from "firebase-app/firebase-config";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import useFirebaseImage from "hooks/useFirebaseImage";
 import DashboardHeading from "module/dashboard/DashboardHeading";
 import React from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import slugify from "slugify";
@@ -35,6 +37,7 @@ const UserAddNew = () => {
       status: userStatus.ACTIVE,
       role: userRole.USER,
       createdAt: new Date(),
+      description: "",
     },
   });
   const {
@@ -46,16 +49,23 @@ const UserAddNew = () => {
   } = useFirebaseImage(setValue, getValues);
   const watchStatus = watch("status");
   const watchRole = watch("role");
+  useEffect(() => {
+    document.title = "Add new user";
+  }, []);
   const addUserHandler = async (values) => {
     if (!isValid) return;
     try {
       await createUserWithEmailAndPassword(auth, values.email, values.password);
+      await updateProfile(auth.currentUser, {
+        displayName: values.fullname,
+        photoURL:
+          "https://images.unsplash.com/photo-1644982647844-5ee1bdc5b114?ixlib=rb-1.2.1&ixid=MnwxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1074&q=80",
+      });
       await addDoc(collection(db, "users"), {
         avatar: image,
         fullname: values.fullname,
         username: slugify(values.username || values.fullname, {
           lower: true,
-          replacement: " ",
           trim: true,
         }),
         email: values.email,
@@ -63,6 +73,7 @@ const UserAddNew = () => {
         status: Number(values.status),
         role: Number(values.role),
         createdAt: serverTimestamp(),
+        description: values.description,
       });
       toast.success(
         `Create new user with email: ${values.email} is successfully!`
@@ -77,6 +88,7 @@ const UserAddNew = () => {
         status: userStatus.ACTIVE,
         role: userRole.USER,
         createdAt: new Date(),
+        description: "",
       });
     } catch (error) {
       console.log(error);
@@ -195,6 +207,16 @@ const UserAddNew = () => {
                 User
               </Radio>
             </FieldCheckboxes>
+          </Field>
+        </div>
+        <div className="form-layout">
+          <Field>
+            <Label>Descriptions</Label>
+            <Textarea
+              name="description"
+              placeholder="Enter your descriptions"
+              control={control}
+            ></Textarea>
           </Field>
         </div>
         <Button

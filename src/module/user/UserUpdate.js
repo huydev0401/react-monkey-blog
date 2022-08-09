@@ -4,6 +4,7 @@ import { Field, FieldCheckboxes } from "components/field";
 import ImageUpload from "components/image/ImageUpload";
 import { Input } from "components/input";
 import { Label } from "components/label";
+import { Textarea } from "components/textarea";
 import { db } from "firebase-app/firebase-config";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import useFirebaseImage from "hooks/useFirebaseImage";
@@ -61,6 +62,7 @@ const UserUpdate = () => {
         password: values.password,
         status: Number(values.status),
         role: Number(values.role),
+        description: values.description,
       });
       toast.success("Update user info is successfully!");
       navigate("/manage/user");
@@ -81,8 +83,8 @@ const UserUpdate = () => {
   return (
     <div>
       <DashboardHeading
-        title="New user"
-        desc="Add new user to system"
+        title="Update user"
+        desc="Update your user"
       ></DashboardHeading>
       <form onSubmit={handleSubmit(updateUserHandler)}>
         <div className="w-[200px] h-[200px] mx-auto rounded-full mb-10">
@@ -190,6 +192,16 @@ const UserUpdate = () => {
                 User
               </Radio>
             </FieldCheckboxes>
+          </Field>
+        </div>
+        <div className="form-layout">
+          <Field>
+            <Label>Descriptions</Label>
+            <Textarea
+              name="description"
+              placeholder="Enter your descriptions"
+              control={control}
+            ></Textarea>
           </Field>
         </div>
         <Button

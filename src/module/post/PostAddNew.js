@@ -1,18 +1,19 @@
-import { Button } from "components/button";
-import { Radio } from "components/checkbox";
-import { Dropdown } from "components/dropdown";
-import { Field } from "components/field";
-import { Input } from "components/input";
-import { Label } from "components/label";
-import React from "react";
-import { useForm } from "react-hook-form";
-import slugify from "slugify";
-import styled from "styled-components";
-import { postStatus } from "utils/constants";
-import ImageUpload from "components/image/ImageUpload";
 import useFirebaseImage from "hooks/useFirebaseImage";
 import Toggle from "components/toggle/Toggle";
-import { useEffect } from "react";
+import slugify from "slugify";
+import React, { useEffect, useState } from "react";
+import ImageUpload from "components/image/ImageUpload";
+import { useForm } from "react-hook-form";
+import { useAuth } from "contexts/auth-context";
+import { toast } from "react-toastify";
+import { Radio } from "components/checkbox";
+import { postStatus } from "utils/constants";
+import { Label } from "components/label";
+import { Input } from "components/input";
+import { Field, FieldCheckboxes } from "components/field";
+import { Dropdown } from "components/dropdown";
+import { db } from "firebase-app/firebase-config";
+import { Button } from "components/button";
 import {
   addDoc,
   collection,
@@ -23,59 +24,63 @@ import {
   serverTimestamp,
   where,
 } from "firebase/firestore";
-import { db } from "firebase-app/firebase-config";
-import { useState } from "react";
-import { useAuth } from "contexts/auth-context";
-import { toast } from "react-toastify";
-const PostAddNewStyles = styled.div``;
+import DashboardHeading from "module/dashboard/DashboardHeading";
 
 const PostAddNew = () => {
   const { userInfo } = useAuth();
-  const {
-    control,
-    watch,
-    handleSubmit,
-    setValue,
-    getValues,
-    reset,
-    formState: { isSubmitting, isValid },
-  } = useForm({
+  const { control, watch, setValue, handleSubmit, getValues, reset } = useForm({
     mode: "onChange",
     defaultValues: {
       title: "",
       slug: "",
       status: 2,
       hot: false,
+      image: "",
       category: {},
       user: {},
-      image: "",
     },
   });
+  const watchStatus = watch("status");
+  const watchHot = watch("hot");
   const {
     image,
+    handleResetUpload,
     progress,
     handleSelectImage,
     handleDeleteImage,
-    handleResetUpload,
   } = useFirebaseImage(setValue, getValues);
-  const watchStatus = watch("status");
-  const watchHot = watch("hot");
   const [categories, setCategories] = useState([]);
-  const [selectCategory, setSelectCategory] = useState({});
+  const [selectCategory, setSelectCategory] = useState("");
+  const [loading, setLoading] = useState(false);
+  useEffect(() => {
+    async function fetchUserData() {
+      if (!userInfo.email) return;
+      const q = query(
+        collection(db, "users"),
+        where("email", "==", userInfo.email)
+      );
+      const querySnapshot = await getDocs(q);
+      querySnapshot.forEach((doc) => {
+        setValue("user", {
+          id: doc.id,
+          ...doc.data(),
+        });
+      });
+    }
+    fetchUserData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userInfo.email]);
   const addPostHandler = async (values) => {
-    if (!isValid) return;
+    setLoading(true);
     try {
       const cloneValues = { ...values };
-      cloneValues.slug = slugify(values.slug || values.title, {
-        lower: true,
-        replacement: " ",
-        trim: true,
-      });
+      cloneValues.slug = slugify(values.slug || values.title, { lower: true });
       cloneValues.status = Number(values.status);
-      console.log(cloneValues);
       const colRef = collection(db, "posts");
       await addDoc(colRef, {
         ...cloneValues,
+        categoryId: cloneValues.category.id,
+        userId: cloneValues.user.id,
         image,
         createdAt: serverTimestamp(),
       });
@@ -84,16 +89,20 @@ const PostAddNew = () => {
         title: "",
         slug: "",
         status: 2,
-        hot: false,
         category: {},
+        hot: false,
         image: "",
+        user: {},
       });
-      setSelectCategory(null);
       handleResetUpload();
+      setSelectCategory({});
     } catch (error) {
-      console.log(error);
+      setLoading(false);
+    } finally {
+      setLoading(false);
     }
   };
+
   useEffect(() => {
     async function getData() {
       const colRef = collection(db, "categories");
@@ -110,25 +119,12 @@ const PostAddNew = () => {
     }
     getData();
   }, []);
+
   useEffect(() => {
-    async function fetchUserData() {
-      if (!userInfo.email) return;
-      const q = query(
-        collection(db, "users"),
-        where("email", "==", userInfo.email)
-      );
-      const querySnapshot = await getDocs(q);
-      querySnapshot.forEach((doc) =>
-        setValue("user", {
-          id: doc.id,
-          ...doc.data(),
-        })
-      );
-    }
-    fetchUserData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userInfo.email]);
-  const handleSelectOption = async (item) => {
+    document.title = "Monkey Blogging - Add new post";
+  }, []);
+
+  const handleClickOption = async (item) => {
     const colRef = doc(db, "categories", item.id);
     const docData = await getDoc(colRef);
     setValue("category", {
@@ -137,14 +133,12 @@ const PostAddNew = () => {
     });
     setSelectCategory(item);
   };
-  useEffect(() => {
-    document.title = "Monkey Blogging - Add new post";
-  }, []);
+
   return (
-    <PostAddNewStyles>
-      <h1 className="dashboard-heading">Add new post</h1>
+    <>
+      <DashboardHeading title="Add post" desc="Add new post"></DashboardHeading>
       <form onSubmit={handleSubmit(addPostHandler)}>
-        <div className="grid grid-cols-2 gap-x-10 mb-10">
+        <div className="form-layout">
           <Field>
             <Label>Title</Label>
             <Input
@@ -163,27 +157,27 @@ const PostAddNew = () => {
             ></Input>
           </Field>
         </div>
-        <div className="grid grid-cols-2 gap-x-10 mb-10">
+        <div className="form-layout">
           <Field>
             <Label>Image</Label>
             <ImageUpload
+              onChange={handleSelectImage}
+              handleDeleteImage={handleDeleteImage}
+              className="h-[250px]"
               progress={progress}
               image={image}
-              onChange={handleSelectImage}
-              className="h-[250px]"
-              handleDeleteImage={handleDeleteImage}
             ></ImageUpload>
           </Field>
           <Field>
             <Label>Category</Label>
             <Dropdown>
-              <Dropdown.Select placeholder="Select the categories"></Dropdown.Select>
+              <Dropdown.Select placeholder="Select the category"></Dropdown.Select>
               <Dropdown.List>
                 {categories.length > 0 &&
                   categories.map((item) => (
                     <Dropdown.Option
                       key={item.id}
-                      onClick={() => handleSelectOption(item)}
+                      onClick={() => handleClickOption(item)}
                     >
                       {item.name}
                     </Dropdown.Option>
@@ -191,13 +185,13 @@ const PostAddNew = () => {
               </Dropdown.List>
             </Dropdown>
             {selectCategory?.name && (
-              <div className="inline-block p-2 bg-green-50 text-green-600 rounded-md font-medium">
-                {selectCategory.name}
-              </div>
+              <span className="inline-block p-3 text-sm font-medium text-green-600 rounded-lg bg-green-50">
+                {selectCategory?.name}
+              </span>
             )}
           </Field>
         </div>
-        <div className="grid grid-cols-2 gap-x-10 mb-10">
+        <div className="form-layout">
           <Field>
             <Label>Feature post</Label>
             <Toggle
@@ -207,7 +201,7 @@ const PostAddNew = () => {
           </Field>
           <Field>
             <Label>Status</Label>
-            <div className="flex items-center gap-x-5">
+            <FieldCheckboxes>
               <Radio
                 name="status"
                 control={control}
@@ -232,19 +226,19 @@ const PostAddNew = () => {
               >
                 Reject
               </Radio>
-            </div>
+            </FieldCheckboxes>
           </Field>
         </div>
         <Button
-          isLoading={isSubmitting}
-          disabled={isSubmitting}
           type="submit"
-          className={`mx-auto ${isSubmitting ? "w-[180px]" : ""}`}
+          className="mx-auto w-[250px]"
+          isLoading={loading}
+          disabled={loading}
         >
           Add new post
         </Button>
       </form>
-    </PostAddNewStyles>
+    </>
   );
 };
 

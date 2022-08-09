@@ -18,8 +18,8 @@ const UserProfile = () => {
         desc="Update your account information"
       ></DashboardHeading>
       <form>
-        <div className="text-center mb-10">
-          <ImageUpload className="w-[200px] h-[200px] !rounded-full min-h-0 mx-auto"></ImageUpload>
+        <div className="w-[200px] h-[200px] mx-auto rounded-full text-center mb-10">
+          <ImageUpload className="!rounded-full h-full mx-auto"></ImageUpload>
         </div>
         <div className="form-layout">
           <Field>

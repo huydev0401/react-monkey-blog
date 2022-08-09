@@ -69,6 +69,7 @@ export default function useFirebaseImage(
       })
       .catch((error) => {
         console.log(error);
+        setImage("");
       });
   };
   const handleResetUpload = () => {

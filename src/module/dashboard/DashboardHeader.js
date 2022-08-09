@@ -1,6 +1,9 @@
 import { Button } from "components/button";
+import { useAuth } from "contexts/auth-context";
 import React from "react";
+import { Link } from "react-router-dom";
 import styled from "styled-components";
+import { userRole } from "utils/constants";
 const DashboardHeaderStyles = styled.div`
   background-color: white;
   padding: 20px;
@@ -21,17 +24,17 @@ const DashboardHeaderStyles = styled.div`
 `;
 
 const DashboardHeader = () => {
+  const { userInfo } = useAuth();
   return (
     <DashboardHeaderStyles>
-      <Button to="/manage/add-post" className="header-button" height="52px">
-        Write new post
-      </Button>
-      <div className="header-avatar">
-        <img
-          src="https://images.unsplash.com/photo-1568602471122-7832951cc4c5?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=3270&q=80"
-          alt=""
-        />
-      </div>
+      {userInfo.role === userRole.ADMIN && (
+        <Button to="/manage/add-post" className="header-button" height="52px">
+          Write new post
+        </Button>
+      )}
+      <Link to={`/profile`} className="header-avatar">
+        <img src={userInfo?.avatar || ""} alt="" />
+      </Link>
     </DashboardHeaderStyles>
   );
 };
