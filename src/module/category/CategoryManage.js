@@ -97,7 +97,7 @@ const CategoryManage = () => {
   return (
     <div>
       <DashboardHeading title="categoryList" desc="Manage your category">
-        <Button kind="ghost" height="56px" to="/mange/add-category">
+        <Button kind="ghost" height="56px" to="/manage/add-category">
           Create category
         </Button>
       </DashboardHeading>

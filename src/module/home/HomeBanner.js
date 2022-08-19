@@ -60,10 +60,11 @@ const HomeBanner = () => {
           <div className="banner-content">
             <h1 className="banner-heading">Code Blog</h1>
             <p className="banner-desc">
-              Lorem ipsum dolor sit amet consectetur adipisicing elit.
-              Laudantium magnam similique accusantium natus esse facilis!
-              Quaerat voluptates possimus dolorem officiis pariatur, repellat,
-              cupiditate porro, quidem molestiae impedit laudantium neque quo!
+              Chào mừng bạn đến với Blog Code. Đây là nới bạn có thể học hỏi,
+              chia sẽ kiến thức của bản thân, giao lưu với các coder khác trên
+              mọi miền tổ quốc. Đừng ngần ngại, hãy chia sẽ kiến thức của mình,
+              để cùng xây dựng một cồng đồng Front-end Việt Nam thật vững mạnh
+              bạn nhé!
             </p>
             <Button to="/sign-up" kind="secondary" className="banner-button">
               Get started

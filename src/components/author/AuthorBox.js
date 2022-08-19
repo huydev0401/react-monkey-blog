@@ -11,6 +11,8 @@ const AuthorBoxStyles = styled.div`
   display: flex;
   border-radius: 20px;
   background-color: ${(props) => props.theme.grayF3};
+  align-items: center;
+  padding: 0 10px;
   .author {
     &-image {
       width: 200px;
