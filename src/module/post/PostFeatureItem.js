@@ -57,7 +57,7 @@ const PostFeatureItem = ({ data }) => {
   const formatDate = new Date(date).toLocaleDateString("vi-Vi");
   return (
     <PostFeatureItemStyles>
-      <PostImage url={data?.image} alt="unsplash"></PostImage>
+      <PostImage url={data?.image}></PostImage>
       <div className="post-overlay"></div>
       <div className="post-content">
         <div className="post-top">

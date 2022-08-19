@@ -36,7 +36,7 @@ const AuthenticationPage = ({ children }) => {
         <NavLink to="/">
           <img srcSet="/logo.png 2x" alt="monkey-blogging" className="logo" />
         </NavLink>
-        <h1 className="heading">Monkey Blogging</h1>
+        <h1 className="heading">Code Blog</h1>
         {children}
       </div>
     </AuthenticationPageStyles>

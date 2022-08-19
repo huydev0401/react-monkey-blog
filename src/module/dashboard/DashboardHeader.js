@@ -1,6 +1,9 @@
 import { Button } from "components/button";
 import { useAuth } from "contexts/auth-context";
-import React from "react";
+import { db } from "firebase-app/firebase-config";
+import { collection, onSnapshot, query, where } from "firebase/firestore";
+import React, { useEffect } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { userRole } from "utils/constants";
@@ -25,6 +28,25 @@ const DashboardHeaderStyles = styled.div`
 
 const DashboardHeader = () => {
   const { userInfo } = useAuth();
+  const [data, setData] = useState([]);
+  useEffect(() => {
+    if (userInfo?.email) {
+      const colRef = query(
+        collection(db, "users"),
+        where("email", "==", userInfo.email)
+      );
+      const results = [];
+      onSnapshot(colRef, (snapshot) => {
+        snapshot.forEach((doc) =>
+          results.push({
+            id: doc.id,
+            ...doc.data(),
+          })
+        );
+        setData(results);
+      });
+    }
+  }, [userInfo.email]);
   return (
     <DashboardHeaderStyles>
       {userInfo.role === userRole.ADMIN && (
@@ -32,7 +54,7 @@ const DashboardHeader = () => {
           Write new post
         </Button>
       )}
-      <Link to={`/profile`} className="header-avatar">
+      <Link to={`/profile?id=${data[0]?.id}`} className="header-avatar">
         <img src={userInfo?.avatar || ""} alt="" />
       </Link>
     </DashboardHeaderStyles>

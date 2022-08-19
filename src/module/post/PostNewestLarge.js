@@ -34,7 +34,6 @@ const PostNewestLarge = ({ data }) => {
   return (
     <PostNewestLargeStyles>
       <PostImage url={data.image} to={data.slug} alt=""></PostImage>
-
       <PostCategory to={data.category?.slug}>
         {data.category?.name}
       </PostCategory>

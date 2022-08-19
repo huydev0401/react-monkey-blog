@@ -121,7 +121,7 @@ const PostAddNew = () => {
   }, []);
 
   useEffect(() => {
-    document.title = "Monkey Blogging - Add new post";
+    document.title = "Code Blog - Add new post";
   }, []);
 
   const handleClickOption = async (item) => {
